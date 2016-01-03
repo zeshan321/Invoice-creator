@@ -2,7 +2,10 @@ package application;
 
 import java.io.IOException;
 
+import com.zeshanaslam.invoicecreator.InputObject;
+
 import controller.CreateController;
+import controller.SearchController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,11 +17,21 @@ public class CreateView extends Application {
 
 	private Stage primaryStage;
 	private AnchorPane rootLayout;
-
+	
+	private SearchController searchController;
+	private InputObject inputObject;
 	private double X;
 	private double Y;
 
-	public CreateView(double X, double Y) {
+	public CreateView(InputObject inputObject, double X, double Y) {
+		this.inputObject = inputObject;
+		this.X = X;
+		this.Y = Y;
+	}
+	
+	public CreateView(SearchController searchController, InputObject inputObject, double X, double Y) {
+		this.searchController = searchController;
+		this.inputObject = inputObject;
 		this.X = X;
 		this.Y = Y;
 	}
@@ -40,6 +53,7 @@ public class CreateView extends Application {
 			// Get controller
 			CreateController controller = loader.<CreateController> getController();
 			controller.stage = primaryStage;
+			controller.setData(inputObject, searchController);
 
 			// Show the scene containing the root layout.
 			Scene scene = new Scene(rootLayout);

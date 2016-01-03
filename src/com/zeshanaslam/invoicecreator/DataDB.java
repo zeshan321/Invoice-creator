@@ -45,6 +45,28 @@ public class DataDB {
 		}
 	}
 	
+	public void updateInputString (String ID, String date, String store, String modal, String snumber, String desc, double price, String status) {
+		try {
+			String sql = "UPDATE Inputs SET "
+					+ "Date = ?, Store = ?, Model = ?, Serial = ?, Description = ?, Price = ?, Status = ? WHERE ID = ?";
+
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, date);
+			preparedStatement.setString(2, store);
+			preparedStatement.setString(3, modal);
+			preparedStatement.setString(4, snumber);
+			preparedStatement.setString(5, desc);
+			preparedStatement.setDouble(6, price);
+			preparedStatement.setString(7, status);
+			preparedStatement.setString(8, ID);
+			
+			preparedStatement.executeUpdate();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public List<InputObject> getInputs(String type, String query) {
 		List<InputObject> inputList = new ArrayList<>();
 		
@@ -52,11 +74,16 @@ public class DataDB {
 
 		try {
 			String sql = "SELECT * FROM Inputs WHERE "+ type + " = '" + query + "';";
+			
+			if (type.equals("All")) {
+				sql = "SELECT * FROM Inputs;";
+			}
+			
 			statement = connection.prepareStatement(sql);
 
 			ResultSet rs = statement.executeQuery();
 			while(rs.next()) {
-				inputList.add(new InputObject(rs.getString("Store"), rs.getString("Date"), rs.getString("Model"), rs.getString("Serial"), rs.getString("Description"), String.valueOf(rs.getDouble("Price")), rs.getString("Status")));
+				inputList.add(new InputObject(rs.getString("ID"), rs.getString("Store"), rs.getString("Date"), rs.getString("Model"), rs.getString("Serial"), rs.getString("Description"), String.valueOf(rs.getDouble("Price")), rs.getString("Status")));
 			}
 
 			rs.close();

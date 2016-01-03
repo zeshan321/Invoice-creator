@@ -1,14 +1,17 @@
 package controller;
 
+
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.zeshanaslam.invoicecreator.BackupHandler;
 import com.zeshanaslam.invoicecreator.DateObject;
 import com.zeshanaslam.invoicecreator.Exporter;
 
 import application.CreateView;
 import application.SearchView;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -38,6 +41,7 @@ public class MainController implements Initializable {
 	@FXML private Button bt_create;
 	@FXML private Button bt_search;
 	@FXML private Button bt_export;
+	@FXML private Label bt_exit;
 
 	// Screen size
 	private double initialX;
@@ -52,12 +56,25 @@ public class MainController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		allowDrag();
 
+		bt_exit.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent me) {
+				try {
+					new BackupHandler().startBackup();
+					Platform.exit();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 		bt_create.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent me) {
 				try {
-					new CreateView(newX, newY).start(new Stage());
+					new CreateView(null, newX, newY).start(new Stage());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

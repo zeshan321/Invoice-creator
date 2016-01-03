@@ -5,6 +5,7 @@ import javafx.beans.property.StringProperty;
 
 public class InputObject {
 	
+	public String ID = null;
 	public StringProperty store;
 	public StringProperty date;
 	public StringProperty model;
@@ -13,7 +14,8 @@ public class InputObject {
 	public StringProperty price;
 	public StringProperty status;
 	
-	public InputObject(String store, String date, String modal, String serial, String desc, String price, String status) {
+	public InputObject(String ID, String store, String date, String modal, String serial, String desc, String price, String status) {
+		this.ID = ID;
 		this.store = new SimpleStringProperty(store);
 		this.date = new SimpleStringProperty(date);
 		this.model = new SimpleStringProperty(modal);

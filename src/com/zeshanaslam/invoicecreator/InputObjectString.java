@@ -1,7 +1,5 @@
 package com.zeshanaslam.invoicecreator;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 
 public class InputObjectString {
 	

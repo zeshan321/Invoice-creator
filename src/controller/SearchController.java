@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import com.zeshanaslam.invoicecreator.DataDB;
 import com.zeshanaslam.invoicecreator.InputObject;
 
+import application.CreateView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -38,6 +39,7 @@ public class SearchController implements Initializable {
 
 	// Buttons
 	@FXML private Button bt_start_search;
+	@FXML private Label bt_exit;
 
 	// Screen size
 	private double initialX;
@@ -52,48 +54,45 @@ public class SearchController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		allowDrag();
 
-		cb_search.getItems().addAll(Arrays.asList("Store", "Date", "Model", "Serial", "Status"));
+		cb_search.getItems().addAll(Arrays.asList("All", "Store", "Date", "Model", "Serial", "Status"));
 
 		bt_start_search.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent event) {
-				if (tf_search.getText().isEmpty() && cb_search.getSelectionModel().getSelectedItem() == null) {
+				if (cb_search.getSelectionModel().getSelectedItem() == null) {
 					return;
 				}
 
-				// Clear table
-				table_search.getItems().clear();
-				table_search.getColumns().clear();
+				if (tf_search.getText().isEmpty() && !cb_search.getSelectionModel().getSelectedItem().equals("All")) {
+					return;
+				}
 
-				DataDB dataDB = new DataDB();
+				loadTable();
+			}
+		});
 
-				ObservableList<InputObject> data = FXCollections.observableArrayList(); 
-				data.addAll(dataDB.getInputs(cb_search.getSelectionModel().getSelectedItem(), tf_search.getText()));
-				table_search.setItems(data);
+		SearchController controller = this;
+		table_search.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override 
+			public void handle(MouseEvent event) {
+				if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+					try {
+						InputObject inputObject = table_search.getSelectionModel().getSelectedItem();
+						
+						new CreateView(controller, inputObject, newX, newY).start(new Stage());
+					} catch (Exception e) {
+						e.printStackTrace();
+					};
+				}
+			}
+		});
+		
+		bt_exit.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-				TableColumn<InputObject, String> store = new TableColumn<InputObject, String>("Store");
-				store.setCellValueFactory(cellData -> cellData.getValue().store);
-
-				TableColumn<InputObject, String> date = new TableColumn<InputObject, String>("Date");
-				date.setCellValueFactory(cellData -> cellData.getValue().date);
-
-				TableColumn<InputObject, String> model = new TableColumn<InputObject, String>("Model");
-				model.setCellValueFactory(cellData -> cellData.getValue().model);
-
-				TableColumn<InputObject, String> serial = new TableColumn<InputObject, String>("Serial");
-				serial.setCellValueFactory(cellData -> cellData.getValue().serial);
-
-				TableColumn<InputObject, String> desc = new TableColumn<InputObject, String>("Description");
-				desc.setCellValueFactory(cellData -> cellData.getValue().desc);
-
-				TableColumn<InputObject, String> price = new TableColumn<InputObject, String>("Price");
-				price.setCellValueFactory(cellData -> cellData.getValue().price);
-
-				TableColumn<InputObject, String> status = new TableColumn<InputObject, String>("Status");
-				status.setCellValueFactory(cellData -> cellData.getValue().status);
-
-				table_search.getColumns().addAll(store, date, model, serial, desc, price, status);
+			@Override
+			public void handle(MouseEvent event) {
+				stage.close();
 			}
 		});
 	}
@@ -148,5 +147,41 @@ public class SearchController implements Initializable {
 				}
 			}
 		});
+	}
+
+	@SuppressWarnings("unchecked")
+	public void loadTable() {
+		// Clear table
+		table_search.getItems().clear();
+		table_search.getColumns().clear();
+
+		DataDB dataDB = new DataDB();
+
+		ObservableList<InputObject> data = FXCollections.observableArrayList(); 
+		data.addAll(dataDB.getInputs(cb_search.getSelectionModel().getSelectedItem(), tf_search.getText()));
+		table_search.setItems(data);
+
+		TableColumn<InputObject, String> store = new TableColumn<InputObject, String>("Store");
+		store.setCellValueFactory(cellData -> cellData.getValue().store);
+
+		TableColumn<InputObject, String> date = new TableColumn<InputObject, String>("Date");
+		date.setCellValueFactory(cellData -> cellData.getValue().date);
+
+		TableColumn<InputObject, String> model = new TableColumn<InputObject, String>("Model");
+		model.setCellValueFactory(cellData -> cellData.getValue().model);
+
+		TableColumn<InputObject, String> serial = new TableColumn<InputObject, String>("Serial");
+		serial.setCellValueFactory(cellData -> cellData.getValue().serial);
+
+		TableColumn<InputObject, String> desc = new TableColumn<InputObject, String>("Description");
+		desc.setCellValueFactory(cellData -> cellData.getValue().desc);
+
+		TableColumn<InputObject, String> price = new TableColumn<InputObject, String>("Price");
+		price.setCellValueFactory(cellData -> cellData.getValue().price);
+
+		TableColumn<InputObject, String> status = new TableColumn<InputObject, String>("Status");
+		status.setCellValueFactory(cellData -> cellData.getValue().status);
+
+		table_search.getColumns().addAll(store, date, model, serial, desc, price, status);
 	}
 }
