@@ -51,7 +51,7 @@ public class Exporter {
 	private void exportExcel() {
 		DataDB dataDB = new DataDB();
 		try {
-			File file = new File(System.getProperty("user.home") + "/Desktop/" + date1 + " - " + date2 + ".xls");
+			File file = new File(date1 + " - " + date2 + ".xls");
 
 			WritableWorkbook wworkbook = Workbook.createWorkbook(file);
 
@@ -106,7 +106,7 @@ public class Exporter {
 		ConfigLoader configLoader = Main.configLoader;
 		
 		try {
-			File file = new File(System.getProperty("user.home") + "/Desktop/" + date1 + " - " + date2 + ".pdf");
+			File file = new File(date1 + " - " + date2 + ".pdf");
 			
 			Document document = new Document();
 			
