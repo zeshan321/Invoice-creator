@@ -164,7 +164,7 @@ public class Exporter {
 			PdfPTable footer = new PdfPTable(1);
 			footer.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
 			footer.addCell(getCell("Sub-total: $" + sub, PdfPCell.ALIGN_RIGHT, 0));
-			footer.addCell(getCell("Total: $" + finalTotal, PdfPCell.ALIGN_RIGHT, 0));
+			footer.addCell(getCell("Total: $" + new Num().round(finalTotal, 2), PdfPCell.ALIGN_RIGHT, 0));
 			
 			PdfWriter.getInstance(document, new FileOutputStream(file));
 			
