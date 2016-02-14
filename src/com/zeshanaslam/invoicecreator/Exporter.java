@@ -9,6 +9,9 @@ import java.util.List;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -22,6 +25,7 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
+import util.Num;
 
 public class Exporter {
 
@@ -102,7 +106,17 @@ public class Exporter {
 			File file = new File(System.getProperty("user.home") + "/Desktop/" + date1 + " - " + date2 + ".pdf");
 			
 			Document document = new Document();
-			PdfPTable table = new PdfPTable(7);
+			
+			Paragraph p = new Paragraph("Invoice");
+			p.setAlignment(Element.ALIGN_CENTER);
+			p.setFont(new Font(Font.FontFamily.UNDEFINED, 30, Font.BOLD));
+
+			PdfPTable info = new PdfPTable(2);
+			info.setWidthPercentage(100);
+			info.addCell(getCell("123 DUNDAS STREET EAST\nMISSISSAUGA ONTARIO CANADA\nL5A 1w7\nMYELECTRONICS66@GMAIL.COM\n905-272-2777", PdfPCell.ALIGN_LEFT));
+			info.addCell(getCell("123 DUNDAS STREET EAST\nMISSISSAUGA ONTARIO CANADA\nL5A 1w7\nMYELECTRONICS66@GMAIL.COM\n905-272-2777", PdfPCell.ALIGN_RIGHT));			
+			
+			PdfPTable table = new PdfPTable(8);
 			
 			table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
 			table.addCell("Date");
@@ -115,19 +129,32 @@ public class Exporter {
 			table.addCell("Price");
 			table.setHeaderRows(1);
 			
+			// Cell widths
+			table.setWidths(new int[] {50, 40, 50, 50, 100, 40, 50, 50});
 			PdfPCell[] cells = table.getRow(0).getCells(); 
 			for (int j=0;j<cells.length;j++){
-				cells[j].setBackgroundColor(BaseColor.GRAY);
+				cells[j].setBackgroundColor(BaseColor.WHITE);
 			}
 			
 			List<InputObjectString> dataList = dataDB.getDates(date1, date2);
 			for (int i = 0; i < dataList.size(); i++) {
-				table.addCell("Name:"+i);
-				table.addCell("Age:"+i);
-				table.addCell("Location:"+i);
+				table.addCell(dataList.get(i).date);
+				table.addCell(dataList.get(i).store);
+				table.addCell(dataList.get(i).model);
+				table.addCell(dataList.get(i).serial);
+				table.addCell(dataList.get(i).desc);
+				table.addCell(dataList.get(i).status);
+				table.addCell(dataList.get(i).price);
+				
+				double total = Double.parseDouble(dataList.get(i).price) * 1.13;
+				table.addCell(String.valueOf(new Num().round(total, 2)));
 			}
+			
 			PdfWriter.getInstance(document, new FileOutputStream(file));
+			
 			document.open();
+			document.add(p);
+			document.add(info);
 			document.add(table);
 			document.close();
 
@@ -135,5 +162,13 @@ public class Exporter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public PdfPCell getCell(String text, int alignment) {
+	    PdfPCell cell = new PdfPCell(new Phrase(text));
+	    cell.setPadding(0);
+	    cell.setHorizontalAlignment(alignment);
+	    cell.setBorder(PdfPCell.NO_BORDER);
+	    return cell;
 	}
 }
