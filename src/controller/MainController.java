@@ -11,6 +11,7 @@ import com.zeshanaslam.invoicecreator.Exporter;
 
 import application.CreateView;
 import application.SearchView;
+import application.SettingsView;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -42,6 +43,7 @@ public class MainController implements Initializable {
 	@FXML private Button bt_search;
 	@FXML private Button bt_export;
 	@FXML private Label bt_exit;
+	@FXML private Label bt_settings;
 
 	// Screen size
 	private double initialX;
@@ -56,6 +58,18 @@ public class MainController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		allowDrag();
 
+		bt_settings.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent me) {
+				try {
+					new SettingsView(newX, newY).start(new Stage());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
 		bt_exit.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override

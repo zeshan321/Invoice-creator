@@ -3,7 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/zesha/Desktop/Invoice-creator/libs/sqlite-jdbc-3.8.11.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/zesha/Desktop/Invoice-creator/libs/jxl-2.6.12.jar"/>
-	<classpathentry kind="lib" path="C:/Users/zesha/Desktop/Invoice-creator/libs/itextpdf-5.0.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zesha/Desktop/Invoice-creator/libs/itextpdf-5.5.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zesha/Desktop/Invoice-creator/libs/jxl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zesha/Desktop/Invoice-creator/libs/json-20151123.jar"/>
+	<classpathentry kind="lib" path="C:/Users/zesha/Desktop/Invoice-creator/libs/org.apache.commons.io.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

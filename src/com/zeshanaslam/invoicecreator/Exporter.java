@@ -25,6 +25,7 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
+import util.ConfigLoader;
 import util.Num;
 
 public class Exporter {
@@ -102,32 +103,38 @@ public class Exporter {
 
 	private void exportPDF() {
 		DataDB dataDB = new DataDB();
+		ConfigLoader configLoader = Main.configLoader;
+		
 		try {
 			File file = new File(System.getProperty("user.home") + "/Desktop/" + date1 + " - " + date2 + ".pdf");
 			
 			Document document = new Document();
 			
-			Paragraph p = new Paragraph("Invoice");
+			Paragraph p = new Paragraph("Invoice", new Font(Font.FontFamily.UNDEFINED, 30, Font.BOLD));
 			p.setAlignment(Element.ALIGN_CENTER);
-			p.setFont(new Font(Font.FontFamily.UNDEFINED, 30, Font.BOLD));
+			p.setSpacingAfter(30);
 
 			PdfPTable info = new PdfPTable(2);
-			info.setWidthPercentage(100);
-			info.addCell(getCell("123 DUNDAS STREET EAST\nMISSISSAUGA ONTARIO CANADA\nL5A 1w7\nMYELECTRONICS66@GMAIL.COM\n905-272-2777", PdfPCell.ALIGN_LEFT));
-			info.addCell(getCell("123 DUNDAS STREET EAST\nMISSISSAUGA ONTARIO CANADA\nL5A 1w7\nMYELECTRONICS66@GMAIL.COM\n905-272-2777", PdfPCell.ALIGN_RIGHT));			
+			info.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+			info.addCell(getCell(configLoader.getString("Name"), PdfPCell.ALIGN_LEFT, 1));
+			info.addCell(getCell(configLoader.getString("Name1"), PdfPCell.ALIGN_RIGHT, 1));	
+			info.addCell(getCell(configLoader.getString("Address") + "\n" + configLoader.getString("Postal") + "\n" + configLoader.getString("Email") + "\n" + configLoader.getString("Phone"), PdfPCell.ALIGN_LEFT, 0));
+			info.addCell(getCell(configLoader.getString("Address1") + "\n" + configLoader.getString("Postal1") + "\n" + configLoader.getString("Email1") + "\n" + configLoader.getString("Phone1"), PdfPCell.ALIGN_RIGHT, 0));			
+			info.setSpacingAfter(20);
 			
 			PdfPTable table = new PdfPTable(8);
 			
 			table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-			table.addCell("Date");
-			table.addCell("Store");
-			table.addCell("Model Number");
-			table.addCell("Serial Number");
-			table.addCell("Description");
-			table.addCell("Status");
-			table.addCell("Sub-total");
-			table.addCell("Price");
+			table.addCell(getCellHeader("Date"));
+			table.addCell(getCellHeader("Store"));
+			table.addCell(getCellHeader("Model Number"));
+			table.addCell(getCellHeader("Serial Number"));
+			table.addCell(getCellHeader("Description"));
+			table.addCell(getCellHeader("Status"));
+			table.addCell(getCellHeader("Sub-total"));
+			table.addCell(getCellHeader("Price"));
 			table.setHeaderRows(1);
+			table.setSpacingAfter(5);
 			
 			// Cell widths
 			table.setWidths(new int[] {50, 40, 50, 50, 100, 40, 50, 50});
@@ -135,20 +142,29 @@ public class Exporter {
 			for (int j=0;j<cells.length;j++){
 				cells[j].setBackgroundColor(BaseColor.WHITE);
 			}
+			double sub = 0;
+			double finalTotal = 0;
 			
 			List<InputObjectString> dataList = dataDB.getDates(date1, date2);
 			for (int i = 0; i < dataList.size(); i++) {
-				table.addCell(dataList.get(i).date);
-				table.addCell(dataList.get(i).store);
-				table.addCell(dataList.get(i).model);
-				table.addCell(dataList.get(i).serial);
-				table.addCell(dataList.get(i).desc);
-				table.addCell(dataList.get(i).status);
-				table.addCell(dataList.get(i).price);
+				table.addCell(getCellTable(dataList.get(i).date));
+				table.addCell(getCellTable(dataList.get(i).store));
+				table.addCell(getCellTable(dataList.get(i).model));
+				table.addCell(getCellTable(dataList.get(i).serial));
+				table.addCell(getCellTable(dataList.get(i).desc));
+				table.addCell(getCellTable(dataList.get(i).status));
+				table.addCell(getCellTable("$" + dataList.get(i).price));
+				sub = sub + Double.parseDouble(dataList.get(i).price);
 				
-				double total = Double.parseDouble(dataList.get(i).price) * 1.13;
-				table.addCell(String.valueOf(new Num().round(total, 2)));
+				double total = Double.parseDouble(dataList.get(i).price) * configLoader.getDouble("Tax");
+				table.addCell(getCellTable("$" + String.valueOf(new Num().round(total, 2))));
+				finalTotal = finalTotal + total;
 			}
+			
+			PdfPTable footer = new PdfPTable(1);
+			footer.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+			footer.addCell(getCell("Sub-total: $" + sub, PdfPCell.ALIGN_RIGHT, 0));
+			footer.addCell(getCell("Total: $" + finalTotal, PdfPCell.ALIGN_RIGHT, 0));
 			
 			PdfWriter.getInstance(document, new FileOutputStream(file));
 			
@@ -156,6 +172,7 @@ public class Exporter {
 			document.add(p);
 			document.add(info);
 			document.add(table);
+			document.add(footer);
 			document.close();
 
 			Desktop.getDesktop().open(file);
@@ -164,11 +181,26 @@ public class Exporter {
 		}
 	}
 	
-	public PdfPCell getCell(String text, int alignment) {
-	    PdfPCell cell = new PdfPCell(new Phrase(text));
+	private PdfPCell getCell(String text, int alignment, int type) {
+	    PdfPCell cell = null;
+	    
+	    if (type == 0) {
+	    	cell = new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 8)));
+	    } else {
+	    	cell = new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 12, Font.BOLD)));
+	    }
+	    
 	    cell.setPadding(0);
 	    cell.setHorizontalAlignment(alignment);
 	    cell.setBorder(PdfPCell.NO_BORDER);
 	    return cell;
+	}
+	
+	private PdfPCell getCellTable(String text) {
+	    return new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 8)));
+	}
+	
+	private PdfPCell getCellHeader(String text) {
+	    return new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 10)));
 	}
 }
