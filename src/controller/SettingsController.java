@@ -54,8 +54,10 @@ public class SettingsController implements Initializable {
 	@FXML private TextField tf_email1;
 	@FXML private TextField tf_phone1;
 
-	// Tax
+	// Other
 	@FXML private TextField tf_tax;
+	@FXML private TextField tf_invoice;
+	@FXML private TextField tf_sales;
 
 	// Current stage
 	public Stage stage;
@@ -75,6 +77,8 @@ public class SettingsController implements Initializable {
 		tf_postal1.setText(configLoader.getString("Postal1"));
 		tf_email1.setText(configLoader.getString("Email1"));
 		tf_phone1.setText(configLoader.getString("Phone1"));
+		tf_invoice.setText(configLoader.getString("InvoiceNO"));
+		tf_sales.setText(configLoader.getString("Sales"));
 		tf_tax.setText(configLoader.getString("Tax"));
 
 
@@ -84,7 +88,7 @@ public class SettingsController implements Initializable {
 			public void handle(MouseEvent event) {
 				configLoader.updateConfig(tf_name.getText(), tf_address.getText(), tf_postal.getText(), 
 						tf_email.getText(), tf_phone.getText(), tf_name1.getText(), tf_address1.getText(), 
-						tf_postal1.getText(), tf_email1.getText(), tf_phone1.getText(), tf_tax.getText());
+						tf_postal1.getText(), tf_email1.getText(), tf_phone1.getText(), tf_invoice.getText(), tf_sales.getText(), tf_tax.getText());
 				
 				Main.configLoader = new ConfigLoader();
 				stage.close();

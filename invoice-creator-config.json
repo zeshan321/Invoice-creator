@@ -4,10 +4,12 @@
   "Postal": "L5A 1W7",
   "Email": "MyElectronics66@Gmail.com",
   "Phone": "905-272-2777",
-  "Name1": "My Electronics2",
+  "Name1": "Easy Home",
   "Address1": "123 Dundas Street East Mississauga",
   "Postal1": "L5A 1W7",
   "Email1": "MyElectronics66@Gmail.com",
   "Phone1": "905-272-2777",
-  "Tax": "1.13"
+  "InvoiceNO": "13657",
+  "Sales": "Zeshan",
+  "Tax": "0.13"
 }

@@ -3,7 +3,10 @@ package com.zeshanaslam.invoicecreator;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import com.itextpdf.text.BaseColor;
@@ -12,6 +15,7 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -105,6 +109,7 @@ public class Exporter {
 		DataDB dataDB = new DataDB();
 		ConfigLoader configLoader = Main.configLoader;
 		
+		configLoader.updateConfig(configLoader.getString("Name"), configLoader.getString("Address"), configLoader.getString("Postal"), configLoader.getString("Email"), configLoader.getString("Phone"), configLoader.getString("Name1"), configLoader.getString("Address1"), configLoader.getString("Postal1"), configLoader.getString("Email1"), configLoader.getString("Phone1"), String.valueOf(configLoader.getInt("InvoiceNO") + 1), configLoader.getString("Sales"), configLoader.getString("Tax"));
 		try {
 			File file = new File(date1 + " - " + date2 + ".pdf");
 			
@@ -112,17 +117,44 @@ public class Exporter {
 			
 			Paragraph p = new Paragraph("Invoice", new Font(Font.FontFamily.UNDEFINED, 30, Font.BOLD));
 			p.setAlignment(Element.ALIGN_CENTER);
-			p.setSpacingAfter(30);
+			p.setSpacingAfter(15);
 
+			DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+			Calendar cal = Calendar.getInstance();
+			
+			Paragraph p11 = new Paragraph(configLoader.getString("Name") + ":",  new Font(Font.FontFamily.UNDEFINED, 10, Font.BOLD));
+			Paragraph p22 = new Paragraph(configLoader.getString("Address") + "\n" + configLoader.getString("Postal") + "\n" + configLoader.getString("Email") + "\n" + configLoader.getString("Phone"), new Font(Font.FontFamily.UNDEFINED, 8));
+			p11.setSpacingAfter(0);
+			p11.setLeading((float) 0.2);
+			p11.setMultipliedLeading((float) 0.8);
+			p22.setSpacingAfter(0);
+			p22.setLeading((float) 0.2);
+			p22.setMultipliedLeading((float) 0.8);
+			
+			PdfPCell cell = new PdfPCell();
+			cell.addElement(p11);
+			cell.addElement(p22);
+			cell.setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
+			cell.setPadding(0);
+		    cell.setBorder(PdfPCell.NO_BORDER);
+			
 			PdfPTable info = new PdfPTable(2);
 			info.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-			info.addCell(getCell(configLoader.getString("Name"), PdfPCell.ALIGN_LEFT, 1));
-			info.addCell(getCell(configLoader.getString("Name1"), PdfPCell.ALIGN_RIGHT, 1));	
-			info.addCell(getCell(configLoader.getString("Address") + "\n" + configLoader.getString("Postal") + "\n" + configLoader.getString("Email") + "\n" + configLoader.getString("Phone"), PdfPCell.ALIGN_LEFT, 0));
-			info.addCell(getCell(configLoader.getString("Address1") + "\n" + configLoader.getString("Postal1") + "\n" + configLoader.getString("Email1") + "\n" + configLoader.getString("Phone1"), PdfPCell.ALIGN_RIGHT, 0));			
+			info.addCell(cell);
+			info.addCell(getCell("Inovice No.: " + configLoader.getInt("InvoiceNO")
+			+ "\nDate: " + dateFormat.format(cal.getTime())
+			+ "\nSales: " + configLoader.getString("Sales"), PdfPCell.ALIGN_RIGHT, 1));
+			info.addCell(blankCell());
+			info.addCell(blankCell());
+			info.addCell(getCell("Bill To:", PdfPCell.ALIGN_LEFT, 1));
+			info.addCell(blankCell());
+			info.addCell(getCell(configLoader.getString("Name1") + ":", PdfPCell.ALIGN_LEFT, 1));
+			info.addCell(blankCell());
+			info.addCell(getCell(configLoader.getString("Address") + "\n" + configLoader.getString("Postal") + "\n" + configLoader.getString("Email") + "\n" + configLoader.getString("Phone"), PdfPCell.ALIGN_LEFT, 0));		
+			info.addCell(blankCell());
 			info.setSpacingAfter(20);
 			
-			PdfPTable table = new PdfPTable(8);
+			PdfPTable table = new PdfPTable(7);
 			
 			table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
 			table.addCell(getCellHeader("Date"));
@@ -131,19 +163,18 @@ public class Exporter {
 			table.addCell(getCellHeader("Serial Number"));
 			table.addCell(getCellHeader("Description"));
 			table.addCell(getCellHeader("Status"));
-			table.addCell(getCellHeader("Sub-total"));
-			table.addCell(getCellHeader("Price"));
+			table.addCell(getCellHeader("Subtotal"));
 			table.setHeaderRows(1);
 			table.setSpacingAfter(5);
 			
 			// Cell widths
-			table.setWidths(new int[] {50, 40, 50, 50, 100, 40, 50, 50});
+			table.setWidths(new int[] {50, 30, 70, 70, 100, 40, 50});
 			PdfPCell[] cells = table.getRow(0).getCells(); 
 			for (int j=0;j<cells.length;j++){
 				cells[j].setBackgroundColor(BaseColor.WHITE);
 			}
 			double sub = 0;
-			double finalTotal = 0;
+			double tax = 0;
 			
 			List<InputObjectString> dataList = dataDB.getDates(date1, date2);
 			for (int i = 0; i < dataList.size(); i++) {
@@ -157,14 +188,21 @@ public class Exporter {
 				sub = sub + Double.parseDouble(dataList.get(i).price);
 				
 				double total = Double.parseDouble(dataList.get(i).price) * configLoader.getDouble("Tax");
-				table.addCell(getCellTable("$" + String.valueOf(new Num().round(total, 2))));
-				finalTotal = finalTotal + total;
+				tax = tax + total;
 			}
 			
-			PdfPTable footer = new PdfPTable(1);
-			footer.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-			footer.addCell(getCell("Sub-total: $" + sub, PdfPCell.ALIGN_RIGHT, 0));
-			footer.addCell(getCell("Total: $" + new Num().round(finalTotal, 2), PdfPCell.ALIGN_RIGHT, 0));
+			table.addCell(blankCell());
+			table.addCell(blankCell());
+			table.addCell(blankCell());
+			table.addCell(blankCell());
+			table.addCell(blankCell());
+			
+			table.addCell(getCellTablFooter("Subtotal\nHST\nTotal Amt"));
+			table.addCell(getCellTablFooter("$" + sub + "\n$" + new Num().round(tax, 2) + "\n$" + new Num().round(sub + tax, 2)));
+
+			Paragraph footer = new Paragraph("Please contact us for more information about payment options.\nThank you for your business.", new Font(Font.FontFamily.UNDEFINED, 10));
+			footer.setAlignment(Element.ALIGN_CENTER);
+			footer.setSpacingAfter(30);
 			
 			PdfWriter.getInstance(document, new FileOutputStream(file));
 			
@@ -187,7 +225,7 @@ public class Exporter {
 	    if (type == 0) {
 	    	cell = new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 8)));
 	    } else {
-	    	cell = new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 12, Font.BOLD)));
+	    	cell = new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 10, Font.BOLD)));
 	    }
 	    
 	    cell.setPadding(0);
@@ -196,8 +234,20 @@ public class Exporter {
 	    return cell;
 	}
 	
+	private PdfPCell blankCell() {
+	    PdfPCell cell = new PdfPCell(new Phrase(" ", new Font(Font.FontFamily.UNDEFINED, 8)));
+	    cell.setPadding(0);
+	    cell.setBorder(PdfPCell.NO_BORDER);
+	    return cell;
+	}
+	
 	private PdfPCell getCellTable(String text) {
 	    return new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 8)));
+	}
+	
+	private PdfPCell getCellTablFooter(String text) {
+		PdfPCell cell = new PdfPCell(new Phrase(text, new Font(Font.FontFamily.UNDEFINED, 8)));
+	    return cell;
 	}
 	
 	private PdfPCell getCellHeader(String text) {

@@ -24,7 +24,7 @@ public class ConfigLoader {
 		if (!file.exists()) {
 			try {
 				PrintWriter writer = new PrintWriter("invoice-creator-config.json", "UTF-8");
-				writer.println("{\n  \"Name\": \"My Electronics\",\n  \"Address\": \"123 Dundas Street East Mississauga\",\n  \"Postal\": \"L5A 1W7\",\n  \"Email\": \"MyElectronics66@Gmail.com\",\n  \"Phone\": \"905-272-2777\",\n  \"Name1\": \"My Electronics\",\n  \"Address1\": \"123 Dundas Street East Mississauga\",\n  \"Postal1\": \"L5A 1W7\",\n  \"Email1\": \"MyElectronics66@Gmail.com\",\n  \"Phone1\": \"905-272-2777\",\n  \"Tax\": \"1.13\"\n}");
+				writer.println("{\n  \"Name\": \"My Electronics\",\n  \"Address\": \"123 Dundas Street East Mississauga\",\n  \"Postal\": \"L5A 1W7\",\n  \"Email\": \"MyElectronics66@Gmail.com\",\n  \"Phone\": \"905-272-2777\",\n  \"Name1\": \"Easy Home\",\n  \"Address1\": \"123 Dundas Street East Mississauga\",\n  \"Postal1\": \"L5A 1W7\",\n  \"Email1\": \"MyElectronics66@Gmail.com\",\n  \"Phone1\": \"905-272-2777\",\n  \"InvoiceNO\": \"13644\",\n  \"Sales\": \"Zeshan\",\n  \"Tax\": \"0.13\"\n}\n");
 				writer.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -67,10 +67,22 @@ public class ConfigLoader {
 		return configValues.containsKey(key);
 	}
 	
-	public void updateConfig(String name, String address, String postal, String email, String phone, String name1, String address1, String postal1, String email1, String phone1, String tax) {
+	public void updateConfig(String name, String address, String postal, String email, String phone, String name1, String address1, String postal1, String email1, String phone1, String invoice, String sales, String tax) {
 		try {
 			PrintWriter writer = new PrintWriter("invoice-creator-config.json", "UTF-8");
-			writer.println("{\n  \"Name\": \"" + name + "\",\n  \"Address\": \"" + address + "\",\n  \"Postal\": \"" + postal + "\",\n  \"Email\": \"" + email + "\",\n  \"Phone\": \"" + phone + "\",\n  \"Name1\": \"" + name1 + "\",\n  \"Address1\": \"" + address1 + "\",\n  \"Postal1\": \"" + postal1 + "\",\n  \"Email1\": \"" + email1 + "\",\n  \"Phone1\": \"" + phone1 + "\",\n  \"Tax\": \"" + tax + "\"\n}");
+			writer.println("{\n  \"Name\": \"" + name 
+					+ "\",\n  \"Address\": \"" + address 
+					+ "\",\n  \"Postal\": \"" + postal 
+					+ "\",\n  \"Email\": \"" + email 
+					+ "\",\n  \"Phone\": \"" + phone 
+					+ "\",\n  \"Name1\": \"" + name1 
+					+ "\",\n  \"Address1\": \"" + address1 
+					+ "\",\n  \"Postal1\": \"" + postal1 
+					+ "\",\n  \"Email1\": \"" + email1 
+					+ "\",\n  \"Phone1\": \"" + phone1 
+					+ "\",\n  \"InvoiceNO\": \"" + invoice 
+					+ "\",\n  \"Sales\": \"" + sales 
+					+ "\",\n  \"Tax\": \"" + tax + "\"\n}");
 			writer.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
